@@ -1,4 +1,7 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 pluginManagement {
+  includeBuild("build-src")
   repositories {
     google {
       content {
@@ -9,6 +12,7 @@ pluginManagement {
     }
     mavenCentral()
     gradlePluginPortal()
+    maven { url = uri("https://jitpack.io") }
   }
 }
 dependencyResolutionManagement {
@@ -16,8 +20,13 @@ dependencyResolutionManagement {
   repositories {
     google()
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
   }
 }
 
 rootProject.name = "To_Do"
-include(":app")
+include(
+  ":app",
+  ":domain",
+  ":data"
+)
