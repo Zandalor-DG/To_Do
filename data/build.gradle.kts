@@ -30,4 +30,7 @@ dependencies {
 
   // Security
   implementation(libs.androidx.security.crypto)
+
+  // Tests
+  testImplementation(libs.junit)
 }
