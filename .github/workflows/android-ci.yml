@@ -84,7 +84,7 @@ jobs:
           path: app/build/reports/lint/
           retention-days: 7
 
-  build-apk:
+  build:
     runs-on: ubuntu-latest
     needs: test
 
