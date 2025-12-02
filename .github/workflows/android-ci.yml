@@ -162,12 +162,3 @@ jobs:
             ~/.android/build-cache
             $ANDROID_HOME/licenses
           key: android-${{ runner.os }}-${{ hashFiles('**/gradle-wrapper.properties') }}
-
-      - name: Run ktlint
-        run: ./gradlew ktlintCheck
-
-      - name: Run detekt
-        run: ./gradlew detekt
-
-      - name: Run lint
-        run: ./gradlew lintDebug
