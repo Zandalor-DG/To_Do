@@ -1,4 +1,4 @@
-package com.example.to_do.navigation
+package com.example.to_do.ui.navigation
 
 sealed class Destinations(
   val route: String,

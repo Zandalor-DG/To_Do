@@ -1,4 +1,4 @@
-package com.example.to_do.navigation
+package com.example.to_do.ui.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
