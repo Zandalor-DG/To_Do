@@ -12,6 +12,7 @@ object AndroidConfig {
   const val targetSdk: Int = 36
   const val versionCode = 1
   const val versionName = "1.0"
+  const val testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
   const val PROD_BASE_URL = "\"https://example.to-do.com/\""
   const val DEV_BASE_URL = "\"https://dev.example.to-do.com/\""
