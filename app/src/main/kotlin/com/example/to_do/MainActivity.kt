@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.example.to_do.ui.navigation.RootNavigationGraph
+import com.example.to_do.navigation.RootNavigationGraph
 import com.example.to_do.ui.theme.To_DoTheme
 import dagger.hilt.android.AndroidEntryPoint
 

@@ -5,6 +5,29 @@ plugins {
   alias(libs.plugins.kotlin.compose)
 }
 
+android {
+  signingConfigs {
+    create("release") {
+      if (project.hasProperty("storeFile")) {
+        storeFile = file(project.properties["storeFile"] as String)
+        storePassword = project.properties["storePassword"] as String
+        keyAlias = project.properties["keyAlias"] as String
+        keyPassword = project.properties["keyPassword"] as String
+      }
+    }
+  }
+
+  buildTypes {
+    release {
+      signingConfig = if (project.hasProperty("storeFile")) {
+        signingConfigs.getByName("release")
+      } else {
+        signingConfigs.getByName("debug")
+      }
+    }
+  }
+}
+
 dependencies {
   // UIComponents
   api(libs.androidx.navigation.compose)
