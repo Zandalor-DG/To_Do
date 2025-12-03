@@ -1,4 +1,4 @@
-name: Deploy to Stores
+name: Deploy to stores
 
 on:
   push:
