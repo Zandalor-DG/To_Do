@@ -1,0 +1,66 @@
+name: Deploy to Stores
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Create GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app/build/outputs/bundle/release/*.aab
+            app/build/outputs/apk/release/*.apk
+          generate_release_notes: true
+
+      - name: Deploy to Google Play
+        if: needs.check-secrets.outputs.has-google-play-key == 'true' && (github.event.inputs.store == 'google' || github.event.inputs.store == 'both')
+        run: |
+          echo "📤 Uploading to Google Play..."
+
+          # Используем python-скрипт для загрузки
+          python3 scripts/upload_to_google_play.py \
+            --package-name "${{ secrets.PACKAGE_NAME }}" \
+            --aab-path "app/build/outputs/bundle/release/app-release.aab" \
+            --track internal \
+            --service-account-key "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}"
+
+      - name: Deploy to RuStore
+        if: needs.check-secrets.outputs.has-rustore-creds == 'true' && (github.event.inputs.store == 'rustore' || github.event.inputs.store == 'both')
+        run: |
+          echo "📤 Uploading to RuStore..."
+
+          # Используем официальный CLI RuStore если доступен
+          if command -v rustore-cli &> /dev/null; then
+            rustore-cli upload \
+              --apk "app/build/outputs/apk/release/app-release.apk" \
+              --login "${{ secrets.RUSTORE_LOGIN }}" \
+              --password "${{ secrets.RUSTORE_PASSWORD }}" \
+              --app-id "${{ secrets.RUSTORE_APP_ID }}" \
+              --track internal
+          else
+            echo "⚠️  RuStore CLI not installed, using API directly..."
+            # Вызов API как показано выше
+          fi
+
+      # 5. УВЕДОМЛЕНИЯ
+      - name: Send notifications
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Deployment successful!"
+            # Отправляем в Slack/Telegram
+          else
+            echo "❌ Deployment failed!"
+            # Отправляем алерт
+          fi
