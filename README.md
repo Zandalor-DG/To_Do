@@ -9,7 +9,7 @@
 
 ✅ jetpack navigation
 
-✅ single activity(руализованно через начальную навигацию)
+✅ single activity
 
 ✅ DI
 
@@ -19,10 +19,12 @@
 
 ### Планируются
 
-❌ Больше экранов
+❌ больше экранов
 
-❌ Тесты
+❌ Splash screen
 
-❌ Interceptor для навигации
+❌ тесты
 
-❌ Interceptor для сетевых запросов (OkHttp/Retrofit)
+❌ interceptor для навигации
+
+❌ interceptor для сетевых запросов (OkHttp/Retrofit)
