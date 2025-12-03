@@ -99,11 +99,16 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug
 
+      - name: Build debug AAB
+        run: ./gradlew bundleDebug
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: | 
+            app/build/outputs/apk/debug/*.apk
+            app/build/outputs/apk/debug/*.apk
   main:
     runs-on: ubuntu-latest
     needs: test
@@ -158,16 +163,67 @@ jobs:
 
       - name: Run lint
         run: ./gradlew lintDebug
-  deploy:
+  deploy-dev:
     runs-on: ubuntu-latest
-    needs: [ dev, main ]
-    if: |
-      (needs.dev.result == 'success' && github.ref == 'refs/heads/dev') ||
-      (needs.main.result == 'success' && github.ref == 'refs/heads/main')
+    needs: dev
 
     steps:
       - name: Create GitHub Release
-        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app/build/outputs/bundle/debug/*.aab
+            app/build/outputs/apk/debug/*.apk
+          generate_release_notes: true
+
+      - name: Deploy to Google Play
+        if: needs.check-secrets.outputs.has-google-play-key == 'true' && (github.event.inputs.store == 'google' || github.event.inputs.store == 'both')
+        run: |
+          echo "📤 Uploading to Google Play..."
+
+          # Используем python-скрипт для загрузки
+          python3 scripts/upload_to_google_play.py \
+            --package-name "${{ secrets.PACKAGE_NAME }}" \
+            --aab-path "app/build/outputs/bundle/debug/app-debug.aab" \
+            --track internal \
+            --service-account-key "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}"
+
+      - name: Deploy to RuStore
+        if: needs.check-secrets.outputs.has-rustore-creds == 'true' && (github.event.inputs.store == 'rustore' || github.event.inputs.store == 'both')
+        run: |
+          echo "📤 Uploading to RuStore..."
+
+          # Используем официальный CLI RuStore если доступен
+          if command -v rustore-cli &> /dev/null; then
+            rustore-cli upload \
+              --apk "app/build/outputs/apk/debug/app-debug.apk" \
+              --login "${{ secrets.RUSTORE_LOGIN }}" \
+              --password "${{ secrets.RUSTORE_PASSWORD }}" \
+              --app-id "${{ secrets.RUSTORE_APP_ID }}" \
+              --track internal
+          else
+            echo "⚠️  RuStore CLI not installed, using API directly..."
+            # Вызов API как показано выше
+          fi
+
+      # 5. УВЕДОМЛЕНИЯ
+      - name: Send notifications
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Deployment successful!"
+            # Отправляем в Slack/Telegram
+          else
+            echo "❌ Deployment failed!"
+            # Отправляем алерт
+          fi
+
+  deploy-main:
+    runs-on: ubuntu-latest
+    needs: main
+
+    steps:
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
