@@ -1,11 +1,11 @@
 ### Описние
 Данный проект расчитан как показательный, что я умею. По мере свободного времени я буду добавлять и отмечать что есть.
 
-✅ Clear architecture
+✅ сlear architecture
 
 ✅ custom gradle
 
-✅ multy modules
+✅ multi modules
 
 ✅ jetpack navigation
 
